@@ -4,9 +4,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const app = express();
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/scores", require("./routes/scoreRoutes"));
-// Middleware
 app.use(express.json());
 app.use(cors({
   origin: [
@@ -15,6 +12,11 @@ app.use(cors({
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
+
+// ✅ Make sure these lines are EXACTLY like this:
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/scores", require("./routes/scoreRoutes"));
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
@@ -33,4 +35,5 @@ app.get("/", (req, res) => {
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
