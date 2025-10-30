@@ -1,28 +1,34 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/auth");
-const scoreRoutes = require("./routes/score");
+const mongoose = require("mongoose");
 
 const app = express();
 
 // Middleware
-app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: [
+    "https://lemuel-jebas-k-urk23cs1172.github.io",
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
+
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/scores", scoreRoutes);
-
-// Database connection
-connectDB();
+app.use("/api/auth", require("./routes/authRoutes")); // 👈 Important
+app.use("/api/scores", require("./routes/scoreRoutes"));
 
 // Root route
-app.get("/", (req, res) => res.send("🌾 Farm to Table Rescue API running"));
+app.get("/", (req, res) => {
+  res.send("🌾 Farm to Table Rescue API is running...");
+});
 
 // Start server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
