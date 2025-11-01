@@ -1,13 +1,10 @@
-// src/routes/scoreRoutes.js
-const express = require("express");
+import express from "express";
+import { saveScore, getLeaderboard } from "../controllers/scoreController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const { saveScore, getLeaderboard } = require("../controllers/scoreController");
-const { protect } = require("../middleware/authMiddleware");
 
-// Save player score
-router.post("/save", protect, saveScore);
-
-// Leaderboard
+router.post("/save", authMiddleware, saveScore);
 router.get("/leaderboard", getLeaderboard);
 
-module.exports = router;
+export default router;
