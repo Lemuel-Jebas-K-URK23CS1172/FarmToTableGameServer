@@ -3,23 +3,11 @@ import mongoose from "mongoose";
 
 const scoreSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    score: {
-      type: Number,
-      required: true,
-    },
-    level: {
-      type: Number,
-      default: 1,
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    score: { type: Number, required: true },
+    level: { type: Number, default: 1 },
   },
   { timestamps: true }
 );
 
-const Score = mongoose.model("Score", scoreSchema);
-
-export default Score;
+export default mongoose.model("Score", scoreSchema);
