@@ -1,12 +1,14 @@
 // src/routes/scoreRoutes.js
 import express from "express";
-import { saveScore, getLeaderboard } from "../controllers/scoreController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { saveScore, getScores } from "../controllers/scoreController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Register routes correctly
-router.post("/save", authMiddleware, saveScore);
-router.get("/leaderboard", getLeaderboard);
+// ✅ Save user score (POST)
+router.post("/save", protect, saveScore);
 
-export default router; // ✅ THIS is critical
+// ✅ Fetch all scores (GET)
+router.get("/", protect, getScores);
+
+export default router;
