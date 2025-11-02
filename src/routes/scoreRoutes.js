@@ -1,14 +1,17 @@
 // src/routes/scoreRoutes.js
 import express from "express";
-import { saveScore, getScores } from "../controllers/scoreController.js";
+import { saveScore, getUserScores, getAllScores } from "../controllers/scoreController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Save user score (POST)
-router.post("/save", protect, saveScore);
+// ✅ Save new score (user authenticated)
+router.post("/", protect, saveScore);
 
-// ✅ Fetch all scores (GET)
-router.get("/", protect, getScores);
+// ✅ Get all scores for a user
+router.get("/my", protect, getUserScores);
+
+// ✅ Admin: Get all user scores
+router.get("/all", protect, getAllScores);
 
 export default router;
