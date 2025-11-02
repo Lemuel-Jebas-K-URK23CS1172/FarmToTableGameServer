@@ -1,4 +1,3 @@
-// src/routes/authRoutes.js
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -6,7 +5,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// ✅ REGISTER (with selectable role)
+// ✅ REGISTER (with user/admin role selection)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -20,7 +19,7 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ⚠️ for demo only: allow manual role selection (admin/user)
+    // ✅ Allow user to select role (for demo only)
     const validRole = role === "admin" ? "admin" : "user";
 
     const user = await User.create({
