@@ -1,8 +1,9 @@
+// server/src/middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// Verify JWT
-export const verifyToken = (req, res, next) => {
+// ✅ protect middleware (alias for verifyToken)
+export const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token provided" });
@@ -14,11 +15,14 @@ export const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(403).json({ message: "Invalid token" });
+    return res.status(403).json({ message: "Invalid token" });
   }
 };
 
-// Restrict to admins
+// ✅ verifyToken (alias — used by newer routes)
+export const verifyToken = protect;
+
+// ✅ restrict to admins
 export const isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
