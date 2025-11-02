@@ -5,6 +5,10 @@ import cors from "cors";
 import mongoose from "mongoose";
 import userRoutes from "./routes/userRoutes.js";
 import scoreRoutes from "./routes/scoreRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+// ...
+app.use("/api/admin", adminRoutes);
 
 dotenv.config();
 
@@ -27,3 +31,4 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
