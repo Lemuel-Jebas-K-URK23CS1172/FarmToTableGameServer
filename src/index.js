@@ -1,38 +1,31 @@
-// src/index.js
+// server/src/index.js
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import cors from "cors";
-
+import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import scoreRoutes from "./routes/scoreRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
-// ✅ Initialize Express app FIRST
 const app = express();
-
-// ✅ Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-// ✅ Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err.message));
-
-// ✅ Routes (now app is defined)
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/scores", scoreRoutes);
 app.use("/api/admin", adminRoutes);
 
-// ✅ Base route
-app.get("/", (req, res) => {
-  res.send("🚀 Farm To Table Game Server is running successfully!");
-});
+app.get("/", (req, res) => res.send("Farm to Table API running ✅"));
 
-// ✅ Start server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error("MongoDB connection failed:", err));
+
+
