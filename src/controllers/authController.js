@@ -1,93 +1,59 @@
-// src/controllers/authController.js
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import User from "../models/User.js";
+// src/contexts/AuthContext.jsx
+import { createContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
-// ✅ Utility: Generate token with full payload
-const generateToken = (user) => {
-  return jwt.sign(
-    {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" } // token valid for 7 days
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+
+  // Load user data from localStorage on first render
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+
+    if (token && userData) {
+      try {
+        const decoded = jwtDecode(token);
+        const parsedUser = JSON.parse(userData);
+
+        setUser({
+          id: decoded.id,
+          name: parsedUser.name || "Unknown User",
+          email: parsedUser.email,
+          role: decoded.role || parsedUser.role || "user",
+        });
+      } catch (err) {
+        console.error("Failed to decode user:", err);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      }
+    }
+  }, []);
+
+  // Update context when user logs in or out
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    setUser({
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+    });
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
-};
-
-// ✅ Register new user or admin
-export const registerUser = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Please fill all fields" });
-    }
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // role can be "user" or "admin"
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || "user",
-    });
-
-    const token = generateToken(user);
-
-    res.status(201).json({
-      message: "Registration successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token,
-    });
-  } catch (err) {
-    console.error("❌ Error in registerUser:", err);
-    res.status(500).json({ message: "Server error during registration" });
-  }
-};
-
-// ✅ Login existing user or admin
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const token = generateToken(user);
-
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token,
-    });
-  } catch (err) {
-    console.error("❌ Error in loginUser:", err);
-    res.status(500).json({ message: "Server error during login" });
-  }
 };
